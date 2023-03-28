@@ -15,6 +15,7 @@ import java.util.List;
 public class RoleDAOImpl implements RoleDAO {
     private static final String SQL_SELECT_ALL_ROLES = "SELECT * FROM roles";
     private static final String SQL_SELECT_ROLE_BY_ID = "SELECT * FROM roles WHERE role_id = ?";
+    private static final String SQL_SELECT_ROLE_BY_NAME = "SELECT * FROM roles WHERE `name` = ?";
     private static final String SQL_ADD_ROLE = "INSERT INTO roles (`name`) VALUES (?)";
     private static final String SQL_UPDATE_ROLE = "UPDATE roles SET `name` = ? WHERE role_id = ?";
     private static final String SQL_DELETE_ROLE = "DELETE FROM roles WHERE role_id = ?";
@@ -39,11 +40,15 @@ public class RoleDAOImpl implements RoleDAO {
         return null;
     }
 
-    private Role getRole(ResultSet rs) {
-        try {
-            int id = rs.getInt("role_id");
-            String name = rs.getString("name");
-            return new Role(id, name);
+    @Override
+    public Role getByName(String name) {
+        try (PreparedStatement stmt = con.prepareStatement(SQL_SELECT_ROLE_BY_NAME)) {
+            stmt.setString(1, name);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return getRole(rs);
+                }
+            }
         } catch (SQLException ex) {
             logger.error("Error: " + ex.getMessage());
         }
@@ -61,6 +66,17 @@ public class RoleDAOImpl implements RoleDAO {
                 }
                 return roles;
             }
+        } catch (SQLException ex) {
+            logger.error("Error: " + ex.getMessage());
+        }
+        return null;
+    }
+
+    private Role getRole(ResultSet rs) {
+        try {
+            int id = rs.getInt("role_id");
+            String name = rs.getString("name");
+            return new Role(id, name);
         } catch (SQLException ex) {
             logger.error("Error: " + ex.getMessage());
         }

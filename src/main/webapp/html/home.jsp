@@ -23,5 +23,6 @@
         <p>This is a simple example of a JSP page with a navbar.</p>
     </div>
 </div>
+
 </body>
 </html>

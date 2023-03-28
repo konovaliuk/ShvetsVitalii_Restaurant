@@ -1,6 +1,6 @@
 package org.application.dao.impl;
 
-import org.application.dao.DAO;
+import org.application.dao.CategoriesDAO;
 import org.application.models.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,15 +12,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryDAOImpl implements DAO<Category> {
+public class CategoriesDAOImpl implements CategoriesDAO {
     private static final String SQL_SELECT_ALL_CATEGORIES = "SELECT * FROM categories";
     private static final String SQL_SELECT_CATEGORY_BY_ID = "SELECT * FROM categories WHERE category_id = ?";
     private static final String SQL_UPDATE_CATEGORY = "UPDATE categories SET `name` = ? WHERE category_id = ?";
     private static final String SQL_ADD_CATEGORY = "INSERT INTO categories (`name`) VALUES (?)";
     private static final String SQL_DELETE_CATEGORY = "DELETE FROM categories WHERE category_id = ?";
     private final Connection con;
-    private static final Logger logger = LoggerFactory.getLogger(CategoryDAOImpl.class);
-    public CategoryDAOImpl(Connection con) {
+    private static final Logger logger = LoggerFactory.getLogger(CategoriesDAOImpl.class);
+    public CategoriesDAOImpl(Connection con) {
         this.con = con;
     }
 

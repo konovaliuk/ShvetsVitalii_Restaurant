@@ -30,6 +30,7 @@ public class FoodDAOImpl implements FoodDAO {
     public FoodDAOImpl(Connection con) {
         this.con = con;
     }
+
     @Override
     public Food get(int id) {
         try (PreparedStatement stmt = con.prepareStatement(SQL_SELECT_FOOD_BY_ID)) {

@@ -3,7 +3,6 @@ package org.application.dao.impl;
 import org.application.dao.UserDAO;
 import org.application.models.Role;
 import org.application.models.User;
-import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +29,7 @@ public class UserDAOImpl implements UserDAO {
     public UserDAOImpl(Connection con){
         this.con = con;
     }
+
     @Override
     public User get(int id) {
         try (PreparedStatement stmt = con.prepareStatement(SQL_SELECT_USER_BY_ID)){
@@ -125,13 +125,14 @@ public class UserDAOImpl implements UserDAO {
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
                     user.setUserId(rs.getInt(1));
+                    return user;
                 }
             }
         }
         catch (SQLException ex) {
             logger.error("Error: " + ex.getMessage());
         }
-        return user;
+        return null;
     }
 
     @Override
@@ -165,13 +166,5 @@ public class UserDAOImpl implements UserDAO {
         catch (SQLException ex) {
             logger.error("Error: " + ex.getMessage());
         }
-    }
-
-    public String getHash(String password) {
-        return BCrypt.hashpw(password, BCrypt.gensalt());
-    }
-
-    public boolean checkPassword(String password, String hash) {
-        return BCrypt.checkpw(password, hash);
     }
 }
