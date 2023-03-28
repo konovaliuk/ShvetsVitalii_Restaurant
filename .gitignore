@@ -7,5 +7,5 @@
 /dataSources/
 /dataSources.local.xml
 # Ignore target
-/target/
-/idea/
+.idea
+target/
