@@ -2,12 +2,24 @@ package org.application.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
+import jakarta.persistence.*;
 
 @Data
+@Entity
+@Table(name = "order_food")
+@IdClass(OrderFoodId.class)
 @AllArgsConstructor
-public class OrderFood {
+@NoArgsConstructor
+public class OrderFood{
+    @Id
+    @Column(name = "order_id")
     private int orderId;
-    private List<OrderedFoodUnit> orderedFoodUnits;
+    @Id
+    @Column(name = "food_id")
+    private int foodId;
+    private int quantity;
+    @Column(name = "unit_price")
+    private double unitPrice;
 }
