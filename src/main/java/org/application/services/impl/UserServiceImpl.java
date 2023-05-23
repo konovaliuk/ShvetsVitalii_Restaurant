@@ -1,155 +1,93 @@
 package org.application.services.impl;
 
-import org.application.dao.ConnectionPool;
-import org.application.dao.UserDAO;
-import org.application.dao.impl.UserDAOImpl;
+import jakarta.transaction.Transactional;
 import org.application.models.User;
+import org.application.repository.UserRepository;
+import org.application.services.RoleService;
 import org.application.services.UserService;
-import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
 import java.util.List;
 
+@Service
+@Transactional
 public class UserServiceImpl implements UserService {
+    private final UserRepository userRepository;
+    private final RoleService roleService;
+    private final BCryptPasswordEncoder passwordEncoder;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-    @Override
-    public List<User> getAllUsers() {
-        try (Connection con = ConnectionPool.getConnection()) {
-            UserDAO userDAO = new UserDAOImpl(con);
-            try {
-                return userDAO.getAll();
-            } catch (Exception ex) {
-                logger.error("Error: " + ex.getMessage());
-            }
-        } catch (Exception ex) {
-            logger.error("Error: " + ex.getMessage());
-        }
-        return null;
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, RoleService roleService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
     }
     @Override
-    public List<User> getUsersByRole(User user) {
-        try (Connection con = ConnectionPool.getConnection()) {
-            UserDAO userDAO = new UserDAOImpl(con);
-            try {
-                return userDAO.getByRole(user);
-            } catch (Exception ex) {
-                logger.error("Error: " + ex.getMessage());
-            }
-        } catch (Exception ex) {
-            logger.error("Error: " + ex.getMessage());
-        }
-        return null;
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public Page<User> getAllUsers(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page-1, pageSize);
+        return userRepository.findAll(pageable);
+    }
+
+    @Override
+    public List<User> getUsersByRole(String roleName) {
+        return userRepository.findByRole(roleName);
     }
     @Override
     public User getUser(int id) {
-        try (Connection con = ConnectionPool.getConnection()) {
-            UserDAO userDAO = new UserDAOImpl(con);
-            try {
-                return userDAO.get(id);
-            } catch (Exception ex) {
-                logger.error("Error: " + ex.getMessage());
-            }
-        } catch (Exception ex) {
-            logger.error("Error: " + ex.getMessage());
-        }
-        return null;
+        return userRepository.findById(id).orElse(null);
     }
     @Override
     public User registerUser(User user) {
-        try (Connection con = ConnectionPool.getConnection()) {
-            UserDAO userDAO = new UserDAOImpl(con);
-            try {
-                con.setAutoCommit(false);
-                user.setPassword(getHash(user.getPassword()));
-                if (userDAO.create(user) != null) {
-                    con.commit();
-                    return user;
-                }
-            } catch (Exception ex) {
-                try {
-                    con.rollback();
-                } catch (Exception e) {
-                    logger.error("Error: " + e.getMessage());
-                }
-            } finally {
-                con.setAutoCommit(true);
-            }
-        } catch (Exception ex) {
-            logger.error("Error: " + ex.getMessage());
+        user.setRole(roleService.getRoleByName("customer"));
+        user.setSalary(0);
+        if (userRepository.findByLogin(user.getLogin()) != null || userRepository.findByEmail(user.getEmail()) != null) {
+            return null;
         }
-        return null;
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
     @Override
     public User loginUser(String login, String password) {
-        try (Connection con = ConnectionPool.getConnection()) {
-            UserDAO userDAO = new UserDAOImpl(con);
-            try {
-                User user = userDAO.getByLogin(login);
-                if (checkPassword(password, user.getPassword())) {
-                    return user;
-                }
-            } catch (Exception ex) {
-                logger.error("Error: " + ex.getMessage());
-            }
-        } catch (Exception ex) {
-            logger.error("Error: " + ex.getMessage());
+        User user = userRepository.findByLogin(login);
+        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+            return user;
         }
         return null;
     }
     @Override
     public void updateUser(User user) {
-        try (Connection con = ConnectionPool.getConnection()) {
-            UserDAO userDAO = new UserDAOImpl(con);
-            try {
-                con.setAutoCommit(false);
-                user.setPassword(getHash(user.getPassword()));
-                userDAO.update(user);
-                con.commit();
-            } catch (Exception ex) {
-                try {
-                    con.rollback();
-                } catch (Exception e) {
-                    logger.error("Error: " + e.getMessage());
-                }
-            } finally {
-               con.setAutoCommit(true);
-            }
-        } catch (Exception ex) {
-            logger.error("Error: " + ex.getMessage());
+        userRepository.save(user);
+    }
+    @Override
+    public void changeRole(int id, int roleId) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user!=null && !user.getRole().getName().equals("admin")) {
+            user.setRole(roleService.getRole(roleId));
+            userRepository.save(user);
         }
     }
     @Override
-    public boolean deleteUser(int id, String password) {
-        try (Connection con = ConnectionPool.getConnection()) {
-            UserDAO userDAO = new UserDAOImpl(con);
-            try {
-                con.setAutoCommit(false);
-                User user = userDAO.get(id);
-                if (checkPassword(user.getPassword(), getHash(password))) {
-                    userDAO.delete(id);
-                    con.commit();
-                    return true;
-                }
-            } catch (Exception ex) {
-                try {
-                    con.rollback();
-                } catch (Exception e) {
-                    logger.error("Error: " + e.getMessage());
-                }
-            } finally {
-                con.setAutoCommit(true);
-            }
-        } catch (Exception ex) {
-            logger.error("Error: " + ex.getMessage());
+    public void changeSalary(int id, double salary) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            user.setSalary(salary);
+            userRepository.save(user);
         }
-        return false;
     }
-    private String getHash(String password) {
-        return BCrypt.hashpw(password, BCrypt.gensalt());
-    }
-    public boolean checkPassword(String password, String hash) {
-        return BCrypt.checkpw(password, hash);
+    @Override
+    public void deleteUser(int id) {
+        userRepository.deleteById(id);
     }
 }

@@ -1,109 +1,51 @@
 package org.application.services.impl;
 
-import org.application.dao.ConnectionPool;
-import org.application.dao.FoodDAO;
-import org.application.dao.impl.FoodDAOImpl;
+import jakarta.transaction.Transactional;
 import org.application.models.Food;
+import org.application.repository.FoodRepository;
 import org.application.services.FoodService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
 import java.util.List;
-
+@Service
+@Transactional
 public class FoodServiceImpl implements FoodService {
+    private final FoodRepository foodRepository;
     private static final Logger logger = LoggerFactory.getLogger(FoodServiceImpl.class);
+    @Autowired
+    public FoodServiceImpl(FoodRepository foodRepository) {
+        this.foodRepository = foodRepository;
+    }
     @Override
     public Food createFood(Food food) {
-        try (Connection con = ConnectionPool.getConnection()) {
-            FoodDAO foodDAO = new FoodDAOImpl(con);
-            try {
-                con.setAutoCommit(false);
-                foodDAO.create(food);
-                con.commit();
-                return food;
-            } catch (Exception ex) {
-                try {
-                    con.rollback();
-                } catch (Exception e) {
-                    logger.error("Error: " + e.getMessage());
-                }
-            } finally {
-                con.setAutoCommit(true);
-            }
-        } catch (Exception ex) {
-            logger.error("Error: " + ex.getMessage());
-        }
-        return null;
+        return foodRepository.save(food);
     }
     @Override
     public void updateFood(Food food) {
-        try (Connection con = ConnectionPool.getConnection()) {
-            FoodDAO foodDAO = new FoodDAOImpl(con);
-            try {
-                con.setAutoCommit(false);
-                foodDAO.update(food);
-                con.commit();
-            } catch (Exception ex) {
-                try {
-                    con.rollback();
-                } catch (Exception e) {
-                    logger.error("Error: " + e.getMessage());
-                }
-            } finally {
-                con.setAutoCommit(true);
-            }
-        } catch (Exception ex) {
-            logger.error("Error: " + ex.getMessage());
-        }
+        foodRepository.save(food);
     }
     @Override
     public void deleteFood(int id) {
-        try (Connection con = ConnectionPool.getConnection()) {
-            FoodDAO foodDAO = new FoodDAOImpl(con);
-            try {
-                con.setAutoCommit(false);
-                foodDAO.delete(id);
-                con.commit();
-            } catch (Exception ex) {
-                try {
-                    con.rollback();
-                } catch (Exception e) {
-                    logger.error("Error: " + e.getMessage());
-                }
-            } finally {
-                con.setAutoCommit(true);
-            }
-        } catch (Exception ex) {
-            logger.error("Error: " + ex.getMessage());
-        }
+        foodRepository.deleteById(id);
     }
     @Override
     public Food getFood(int id) {
-        try (Connection con = ConnectionPool.getConnection()) {
-            FoodDAO foodDAO = new FoodDAOImpl(con);
-            try {
-                return foodDAO.get(id);
-            } catch (Exception ex) {
-                logger.error("Error: " + ex.getMessage());
-            }
-        } catch (Exception ex) {
-            logger.error("Error: " + ex.getMessage());
-        }
-        return null;
+        return foodRepository.findById(id).orElse(null);
     }
     @Override
     public List<Food> getAllFood() {
-        try (Connection con = ConnectionPool.getConnection()) {
-            FoodDAO foodDAO = new FoodDAOImpl(con);
-            try {
-                return foodDAO.getAll();
-            } catch (Exception ex) {
-                logger.error("Error: " + ex.getMessage());
-            }
-        } catch (Exception ex) {
-            logger.error("Error: " + ex.getMessage());
-        }
-        return null;
+        return foodRepository.findAll();
+    }
+
+    @Override
+    public Page<Food> getAllFood(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page-1, pageSize);
+        return foodRepository.findAll(pageable);
     }
 }

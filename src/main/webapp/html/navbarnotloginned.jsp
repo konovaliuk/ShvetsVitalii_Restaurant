@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -9,7 +10,7 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">My Website</a>
+        <a class="navbar-brand" href="/html/index.jsp">My Website</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#myNavbar"
                 aria-controls="myNavbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -17,12 +18,12 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Menu</a>
+                    <a class="nav-link" href="<c:url value="/html/menu/1"/>">Menu</a>
                 </li>
             </ul>
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link active" href="/html/login.jsp">Log In</a>
+                    <a class="nav-link" href="/html/login.jsp">Log In</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/html/signup.jsp">Sign Up</a>

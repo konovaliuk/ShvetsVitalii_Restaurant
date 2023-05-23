@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,10 +11,10 @@
 </head>
 <body>
 <c:if test="${empty sessionScope.user}">
-    <jsp:include page="/html/navbarnotloginned.jsp"/>
+    <jsp:include page="navbarnotloginned.jsp"/>
 </c:if>
 <c:if test="${not empty sessionScope.user}">
-    <jsp:include page="/html/navbarloginned.jsp"/>
+    <jsp:include page="navbarloginned.jsp"/>
 </c:if>
 
 <div class="container">

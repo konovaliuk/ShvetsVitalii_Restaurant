@@ -1,20 +1,20 @@
 <%@ page contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Signup</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
 <c:if test="${empty sessionScope.user}">
-    <jsp:include page="/html/navbarnotloginned.jsp"/>
+    <jsp:include page="navbarnotloginned.jsp"/>
 </c:if>
 <c:if test="${not empty sessionScope.user}">
-    <jsp:include page="/html/navbarloginned.jsp"/>
+    <jsp:include page="navbarloginned.jsp"/>
 </c:if>
 <div class="container my-5">
     <div class="row justify-content-center">
@@ -24,7 +24,7 @@
                     <h4>Register</h4>
                 </div>
                 <div class="card-body">
-                    <form action="/html/signup?command=signup" method="POST">
+                    <form action="http://localhost:8080/html/signup" method="POST">
                         <div class="mb-3">
                             <label for="login" class="form-label">Login</label>
                             <input type="text" class="form-control" id="login" name="login" autocomplete="off" required>
@@ -54,9 +54,9 @@
                         </div>
                         <button type="submit" class="btn btn-primary">Register</button>
                     </form>
-                    <c:if test="${not empty requestScope.error}">
+                    <c:if test="${not empty error}">
                         <div class="alert alert-danger mt-3" role="alert">
-                            <c:out value="${requestScope.error}"/>
+                            <c:out value="${error}"/>
                         </div>
                     </c:if>
                 </div>

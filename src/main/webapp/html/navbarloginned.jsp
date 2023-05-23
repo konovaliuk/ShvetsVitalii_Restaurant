@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -9,7 +10,7 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/html/home.jsp">My Website</a>
+        <a class="navbar-brand" href="/html/index.jsp">My Website</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#myNavbar"
                 aria-controls="myNavbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -17,15 +18,17 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Menu</a>
+                    <a class="nav-link" href="<c:url value="/html/menu/1"/>">Menu</a>
                 </li>
+                <c:if test= "${sessionScope.user.role.name == 'admin'}">
+                    <li class="nav-item">
+                    <a class="nav-link" href="<c:url value="/html/users/1"/>">Users</a>
+                    </li>
+                </c:if>
             </ul>
             <ul class="navbar-nav">
                 <li class="nav-item">
-                <form method="post" action="/html/logout?command=logout">
-                    <%--<a class="nav-link" href="#">Log out</a> --%>
-                    <button type="submit" class="nav-link">Log out</button>
-                </form>
+                    <a class="nav-link" href="<c:url value="/html/logout"/>">Logout</a>
                 </li>
             </ul>
         </div>

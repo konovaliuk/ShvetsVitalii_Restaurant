@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,10 +11,10 @@
 </head>
 <body>
 <c:if test="${empty sessionScope.user}">
-    <jsp:include page="/html/navbarnotloginned.jsp"/>
+  <jsp:include page="navbarnotloginned.jsp"/>
 </c:if>
 <c:if test="${not empty sessionScope.user}">
-    <jsp:include page="/html/navbarloginned.jsp"/>
+  <jsp:include page="navbarloginned.jsp"/>
 </c:if>
 
 <div class="container">
@@ -25,7 +25,7 @@
                     <h3 class="card-title">Login</h3>
                 </div>
                 <div class="card-body">
-                    <form method="post" action="/html/login?command=login">
+                    <form method="post" action="http://localhost:8080/html/login">
                         <div class="mb-3">
                             <label for="login" class="form-label">Username:</label>
                             <input type="text" class="form-control" id="login" name="login" autocomplete="off"
@@ -39,9 +39,9 @@
                             <button type="submit" class="btn btn-primary">Log in</button>
                         </div>
                     </form>
-                    <c:if test="${not empty requestScope.error}">
+                    <c:if test="${not empty error}">
                         <div class="alert alert-danger mt-3" role="alert">
-                            <c:out value="${requestScope.error}"/>
+                            <c:out value="${error}"/>
                         </div>
                     </c:if>
                 </div>
